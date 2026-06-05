@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Program Gym — Fajar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0d;
+    --surface:#14161b;
+    --surface-2:#1c1f26;
+    --border:#2a2e37;
+    --lime:#c8ff00;
+    --lime-dim:rgba(200,255,0,.12);
+    --cyan:#2dd4ff;
+    --cyan-dim:rgba(45,212,255,.12);
+    --rec:#9aa0ad;
+    --rec-dim:rgba(154,160,173,.12);
+    --text:#f4f5f7;
+    --text-dim:#a2a8b5;
+    --text-dimmer:#6b7280;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Plus Jakarta Sans',sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    padding:0 0 60px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px}
+
+  /* HERO */
+  .hero{
+    position:relative;
+    padding:54px 18px 40px;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(200,255,0,.10), transparent 60%),
+      radial-gradient(100% 60% at 90% 0%, rgba(45,212,255,.07), transparent 55%);
+    border-bottom:1px solid var(--border);
+  }
+  .hero-inner{max-width:760px;margin:0 auto}
+  .kicker{
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--lime);font-weight:700;margin-bottom:14px;
+  }
+  h1{
+    font-family:'Anton',sans-serif;
+    font-weight:400;
+    font-size:clamp(44px,12vw,82px);
+    line-height:.92;
+    letter-spacing:.01em;
+    text-transform:uppercase;
+  }
+  h1 .hl{color:var(--lime)}
+  .sub{margin-top:14px;color:var(--text-dim);font-size:15px;max-width:480px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;
+    background:var(--surface);border:1px solid var(--border);
+    padding:7px 13px;border-radius:99px;font-size:13px;font-weight:600;color:var(--text-dim);
+  }
+  .chip svg{width:14px;height:14px;stroke:var(--lime)}
+  .chip.goal{background:var(--lime-dim);border-color:rgba(200,255,0,.3);color:var(--lime)}
+  .chip.goal svg{stroke:var(--lime)}
+
+  /* SECTION HEADERS */
+  .sec{margin-top:42px}
+  .sec-head{display:flex;align-items:center;gap:11px;margin-bottom:18px}
+  .sec-head svg{width:22px;height:22px;stroke:var(--lime);flex-shrink:0}
+  .sec-head h2{
+    font-family:'Anton',sans-serif;font-weight:400;
+    font-size:24px;letter-spacing:.02em;text-transform:uppercase;
+  }
+  .sec-note{color:var(--text-dimmer);font-size:13px;margin:-10px 0 18px}
+
+  /* WEEK STRIP */
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+  .wd{
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    padding:11px 6px;text-align:center;border-top:3px solid var(--border);
+  }
+  .wd.s{border-top-color:var(--lime)}
+  .wd.c{border-top-color:var(--cyan)}
+  .wd.r{border-top-color:var(--rec)}
+  .wd .d{font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--text)}
+  .wd .t{font-size:9.5px;font-weight:600;color:var(--text-dimmer);margin-top:5px;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-size:12px;color:var(--text-dim)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .dot.s{background:var(--lime)}.dot.c{background:var(--cyan)}.dot.r{background:var(--rec)}
+
+  /* CONTROLS */
+  .controls{display:flex;justify-content:flex-end;margin:18px 0 12px}
+  .toggle-all{
+    background:transparent;border:1px solid var(--border);color:var(--text-dim);
+    font-family:inherit;font-size:12px;font-weight:600;letter-spacing:.03em;
+    padding:8px 14px;border-radius:99px;cursor:pointer;transition:.2s;
+  }
+  .toggle-all:hover{border-color:var(--lime);color:var(--lime)}
+
+  /* DAY CARDS */
+  .days{display:flex;flex-direction:column;gap:12px}
+  .day{
+    background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    border-left:4px solid var(--border);overflow:hidden;transition:border-color .2s;
+  }
+  .day.s{border-left-color:var(--lime)}
+  .day.c{border-left-color:var(--cyan)}
+  .day.r{border-left-color:var(--rec)}
+  .day-head{
+    display:flex;align-items:center;gap:14px;padding:17px 18px;cursor:pointer;
+    user-select:none;transition:background .2s;
+  }
+  .day-head:hover{background:var(--surface-2)}
+  .day-num{
+    font-family:'Anton',sans-serif;font-size:30px;line-height:1;
+    color:var(--text-dimmer);min-width:34px;
+  }
+  .day-meta{flex:1;min-width:0}
+  .day-name{font-weight:800;font-size:16px;letter-spacing:.01em}
+  .day-title{font-size:13px;color:var(--text-dim);margin-top:2px}
+  .badge{
+    font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    padding:5px 10px;border-radius:99px;white-space:nowrap;
+  }
+  .badge.s{background:var(--lime-dim);color:var(--lime)}
+  .badge.c{background:var(--cyan-dim);color:var(--cyan)}
+  .badge.r{background:var(--rec-dim);color:var(--rec)}
+  .chev{
+    width:18px;height:18px;stroke:var(--text-dimmer);flex-shrink:0;
+    transition:transform .35s ease;
+  }
+  .day.open .chev{transform:rotate(180deg)}
+
+  .day-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .38s ease}
+  .day.open .day-body{grid-template-rows:1fr}
+  .day-body-inner{overflow:hidden}
+  .day-content{padding:4px 18px 20px}
+
+  .warmup{
+    display:flex;gap:10px;align-items:flex-start;
+    background:var(--surface-2);border-radius:10px;padding:11px 13px;margin-bottom:14px;
+    font-size:13px;color:var(--text-dim);
+  }
+  .warmup b{color:var(--text);font-weight:700}
+  .warmup svg{width:15px;height:15px;stroke:var(--cyan);flex-shrink:0;margin-top:2px}
+
+  .ex{
+    display:flex;align-items:center;gap:12px;padding:11px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .ex:last-child{border-bottom:none}
+  .ex-i{
+    font-family:'Anton',sans-serif;font-size:13px;color:var(--text-dimmer);
+    min-width:18px;text-align:center;
+  }
+  .ex-main{flex:1;min-width:0}
+  .ex-name{font-weight:600;font-size:14.5px}
+  .ex-name .opt{
+    font-size:10px;font-weight:700;color:var(--text-dimmer);
+    border:1px solid var(--border);padding:1px 6px;border-radius:5px;margin-left:6px;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .ex-sub{font-size:12px;color:var(--text-dimmer);margin-top:2px}
+  .ex-sets{
+    font-weight:800;font-size:13px;color:var(--lime);white-space:nowrap;
+    background:var(--lime-dim);padding:5px 11px;border-radius:8px;
+  }
+  .day.c .ex-sets{color:var(--cyan);background:var(--cyan-dim)}
+  .day.r .ex-sets{color:var(--rec);background:var(--rec-dim)}
+  .rec-note{color:var(--text-dim);font-size:14px;line-height:1.6}
+  .rec-note b{color:var(--text)}
+
+  /* INFO CARDS */
+  .cards{display:flex;flex-direction:column;gap:11px}
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 17px;
+  }
+  .card h3{font-size:15px;font-weight:800;margin-bottom:7px;display:flex;align-items:center;gap:9px}
+  .card h3 .n{
+    font-family:'Anton',sans-serif;color:var(--lime);font-size:18px;
+  }
+  .card p{font-size:13.5px;color:var(--text-dim);line-height:1.6}
+  .card p b{color:var(--text);font-weight:700}
+  .card.cy h3 .n{color:var(--cyan)}
+
+  ul.clean{list-style:none;display:flex;flex-direction:column;gap:9px;margin-top:4px}
+  ul.clean li{
+    display:flex;gap:11px;font-size:13.5px;color:var(--text-dim);line-height:1.55;
+  }
+  ul.clean li::before{
+    content:"";width:7px;height:7px;border-radius:2px;background:var(--lime);
+    margin-top:7px;flex-shrink:0;
+  }
+  ul.clean li b{color:var(--text);font-weight:700}
+
+  /* FOOTER */
+  .footer{
+    margin-top:40px;padding:18px;border:1px dashed var(--border);border-radius:12px;
+    font-size:12.5px;color:var(--text-dimmer);line-height:1.6;text-align:center;
+  }
+
+  @media(max-width:560px){
+    .week{grid-template-columns:repeat(4,1fr)}
+    h1{font-size:clamp(42px,15vw,60px)}
+    .day-num{font-size:26px;min-width:28px}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="kicker">Personal Training Plan</div>
+    <h1>Program<br><span class="hl">Gym</span> Fajar</h1>
+    <p class="sub">Plan 7 hari buat bangun badan <b style="color:var(--text)">proper &amp; lean</b> — atletis, proporsional, ga over-gede. Disusun buat pemula, full gym, sesi pagi jam 7.</p>
+    <div class="chips">
+      <span class="chip goal">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 4v16M18 4v16M6 8h12M6 16h12"/></svg>
+        Goal: Lean &amp; Athletic
+      </span>
+      <span class="chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>
+        07:00 WIB
+      </span>
+      <span class="chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+        7 hari / minggu
+      </span>
+      <span class="chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 7L9 18l-5-5"/></svg>
+        Level: Pemula
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- WEEKLY OVERVIEW -->
+  <div class="sec">
+    <div class="sec-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+      <h2>Jadwal Mingguan</h2>
+    </div>
+    <div class="week">
+      <div class="wd s"><div class="d">SEN</div><div class="t">Upper A</div></div>
+      <div class="wd s"><div class="d">SEL</div><div class="t">Lower A</div></div>
+      <div class="wd c"><div class="d">RAB</div><div class="t">Cardio</div></div>
+      <div class="wd s"><div class="d">KAM</div><div class="t">Upper B</div></div>
+      <div class="wd s"><div class="d">JUM</div><div class="t">Lower B</div></div>
+      <div class="wd c"><div class="d">SAB</div><div class="t">Cardio</div></div>
+      <div class="wd r"><div class="d">MIN</div><div class="t">Recovery</div></div>
+    </div>
+    <div class="legend">
+      <span><i class="dot s"></i> Angkat beban (4×)</span>
+      <span><i class="dot c"></i> Cardio + core (2×)</span>
+      <span><i class="dot r"></i> Active recovery (1×)</span>
+    </div>
+  </div>
+
+  <!-- DAYS -->
+  <div class="sec">
+    <div class="sec-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 4v16M18 4v16M6 8h12M6 16h12"/><path d="M3 9v6M21 9v6"/></svg>
+      <h2>Detail Latihan</h2>
+    </div>
+    <p class="sec-note">Tap tiap hari buat buka detailnya. Tiap sesi target ~45–60 menit.</p>
+
+    <div class="controls">
+      <button class="toggle-all" id="toggleAll">Buka semua</button>
+    </div>
+
+    <div class="days">
+
+      <!-- SENIN -->
+      <div class="day s open">
+        <div class="day-head">
+          <div class="day-num">01</div>
+          <div class="day-meta">
+            <div class="day-name">Senin — Upper Body A</div>
+            <div class="day-title">Fokus dorong (push) + punggung</div>
+          </div>
+          <span class="badge s">Strength</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="day-body"><div class="day-body-inner"><div class="day-content">
+          <div class="warmup">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
+            <div><b>Warm-up:</b> 5–10 menit cardio ringan (treadmill/sepeda) + dynamic stretch.</div>
+          </div>
+          <div class="ex"><div class="ex-i">1</div><div class="ex-main"><div class="ex-name">Chest Press</div><div class="ex-sub">Mesin atau barbell, dada</div></div><div class="ex-sets">3 × 8–12</div></div>
+          <div class="ex"><div class="ex-i">2</div><div class="ex-main"><div class="ex-name">Lat Pulldown</div><div class="ex-sub">Punggung, tarik ke dada</div></div><div class="ex-sets">3 × 10–12</div></div>
+          <div class="ex"><div class="ex-i">3</div><div class="ex-main"><div class="ex-name">Seated Shoulder Press</div><div class="ex-sub">Bahu</div></div><div class="ex-sets">3 × 10–12</div></div>
+          <div class="ex"><div class="ex-i">4</div><div class="ex-main"><div class="ex-name">Seated Cable Row</div><div class="ex-sub">Punggung tengah</div></div><div class="ex-sets">3 × 10–12</div></div>
+          <div class="ex"><div class="ex-i">5</div><div class="ex-main"><div class="ex-name">Dumbbell Lateral Raise</div><div class="ex-sub">Bahu samping (buat lebar)</div></div><div class="ex-sets">3 × 12–15</div></div>
+          <div class="ex"><div class="ex-i">6</div><div class="ex-main"><div class="ex-name">Tricep Pushdown</div></div><div class="ex-sets">3 × 12–15</div></div>
+          <div class="ex"><div class="ex-i">7</div><div class="ex-main"><div class="ex-name">Bicep Curl <span class="opt">opsional</span></div></div><div class="ex-sets">2 × 12–15</div></div>
+        </div></div></div>
+      </div>
+
+      <!-- SELASA -->
+      <div class="day s">
+        <div class="day-head">
+          <div class="day-num">02</div>
+          <div class="day-meta">
+            <div class="day-name">Selasa — Lower Body A</div>
+            <div class="day-title">Paha, hamstring, betis + core</div>
+          </div>
+          <span class="badge s">Strength</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="day-body"><div class="day-body-inner"><div class="day-content">
+          <div class="warmup">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
+            <div><b>Warm-up:</b> 5–10 menit + leg swing &amp; bodyweight squat 2×10.</div>
+          </div>
+          <div class="ex"><div class="ex-i">1</div><div class="ex-main"><div class="ex-name">Leg Press</div><div class="ex-sub">Paha depan + glute</div></div><div class="ex-sets">3 × 10–12</div></div>
+          <div class="ex"><div class="ex-i">2</div><div class="ex-main"><div class="ex-name">Romanian Deadlift (RDL)</div><div class="ex-sub">Hamstring, jaga punggung netral</div></div><div class="ex-sets">3 × 10–12</div></div>
+          <div class="ex"><div class="ex-i">3</div><div class="ex-main"><div class="ex-name">Leg Extension</div><div class="ex-sub">Paha depan</div></div><div class="ex-sets">3 × 12–15</div></div>
+          <div class="ex"><div class="ex-i">4</div><div class="ex-main"><div class="ex-name">Leg Curl</div><div class="ex-sub">Hamstring (duduk/tidur)</div></div><div class="ex-sets">3 × 12–15</div></div>
+          <div class="ex"><div class="ex-i">5</div><div class="ex-main"><div class="ex-name">Standing Calf Raise</div><div class="ex-sub">Betis</div></div><div class="ex-sets">3 × 15–20</div></div>
+          <div class="ex"><div class="ex-i">6</div><div class="ex-main"><div class="ex-name">Plank</div><div class="ex-sub">Core, tahan</div></div><div class="ex-sets">3 × 30–45 dtk</div></div>
+        </div></div></div>
+      </div>
+
+      <!-- RABU -->
+      <div class="day c">
+        <div class="day-head">
+          <div class="day-num">03</div>
+          <div class="day-meta">
+            <div class="day-name">Rabu — Cardio + Core</div>
+            <div class="day-title">Recovery aktif buat jantung &amp; perut</div>
+          </div>
+          <span class="badge c">Cardio</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="day-body"><div class="day-body-inner"><div class="day-content">
+          <div class="warmup">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 12h4l2 5 4-13 2 8h6"/></svg>
+            <div>Manfaatin base lari lo. Hari ini santai, <b>ga ngangkat berat.</b></div>
+          </div>
+          <div class="ex"><div class="ex-i">1</div><div class="ex-main"><div class="ex-name">Jogging Zone 2</div><div class="ex-sub">Santai, masih bisa ngobrol sambil lari</div></div><div class="ex-sets">30–40 mnt</div></div>
+          <div class="ex"><div class="ex-i">2</div><div class="ex-main"><div class="ex-name">Hanging Knee Raise</div><div class="ex-sub">Perut bawah</div></div><div class="ex-sets">3 × 12–15</div></div>
+          <div class="ex"><div class="ex-i">3</div><div class="ex-main"><div class="ex-name">Russian Twist</div><div class="ex-sub">Perut samping (oblique)</div></div><div class="ex-sets">3 × 20</div></div>
+          <div class="ex"><div class="ex-i">4</div><div class="ex-main"><div class="ex-name">Dead Bug</div><div class="ex-sub">Core stability</div></div><div class="ex-sets">3 × 10/sisi</div></div>
+        </div></div></div>
+      </div>
+
+      <!-- KAMIS -->
+      <div class="day s">
+        <div class="day-head">
+          <div class="day-num">04</div>
+          <div class="day-meta">
+            <div class="day-name">Kamis — Upper Body B</div>
+            <div class="day-title">Fokus tarik (pull) + bahu</div>
+          </div>
+          <span class="badge s">Strength</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="day-body"><div class="day-body-inner"><div class="day-content">
+          <div class="warmup">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
+            <div><b>Warm-up:</b> 5–10 menit cardio ringan + arm circle &amp; band pull-apart.</div>
+          </div>
+          <div class="ex"><div class="ex-i">1</div><div class="ex-main"><div class="ex-name">Assisted Pull-up / Lat Pulldown</div><div class="ex-sub">Grip beda dari Senin</div></div><div class="ex-sets">3 × 8–12</div></div>
+          <div class="ex"><div class="ex-i">2</div><div class="ex-main"><div class="ex-name">Incline Dumbbell Press</div><div class="ex-sub">Dada atas</div></div><div class="ex-sets">3 × 10–12</div></div>
+          <div class="ex"><div class="ex-i">3</div><div class="ex-main"><div class="ex-name">Chest-Supported / T-Bar Row</div><div class="ex-sub">Punggung, dada nempel pad</div></div><div class="ex-sets">3 × 10–12</div></div>
+          <div class="ex"><div class="ex-i">4</div><div class="ex-main"><div class="ex-name">Dumbbell Shoulder Press</div><div class="ex-sub">Bahu</div></div><div class="ex-sets">3 × 10–12</div></div>
+          <div class="ex"><div class="ex-i">5</div><div class="ex-main"><div class="ex-name">Cable Face Pull</div><div class="ex-sub">Rear delt + postur (penting!)</div></div><div class="ex-sets">3 × 15</div></div>
+          <div class="ex"><div class="ex-i">6</div><div class="ex-main"><div class="ex-name">Bicep Curl</div></div><div class="ex-sets">3 × 12–15</div></div>
+          <div class="ex"><div class="ex-i">7</div><div class="ex-main"><div class="ex-name">Overhead Tricep Ext. <span class="opt">opsional</span></div></div><div class="ex-sets">2 × 12–15</div></div>
+        </div></div></div>
+      </div>
+
+      <!-- JUMAT -->
+      <div class="day s">
+        <div class="day-head">
+          <div class="day-num">05</div>
+          <div class="day-meta">
+            <div class="day-name">Jumat — Lower Body B</div>
+            <div class="day-title">Squat pattern + glute + core</div>
+          </div>
+          <span class="badge s">Strength</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="day-body"><div class="day-body-inner"><div class="day-content">
+          <div class="warmup">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
+            <div><b>Warm-up:</b> 5–10 menit + bodyweight squat &amp; hip opener. Squat mulai dari beban enteng.</div>
+          </div>
+          <div class="ex"><div class="ex-i">1</div><div class="ex-main"><div class="ex-name">Hack Squat / Back Squat</div><div class="ex-sub">Form dulu, beban belakangan</div></div><div class="ex-sets">3 × 8–12</div></div>
+          <div class="ex"><div class="ex-i">2</div><div class="ex-main"><div class="ex-name">Hip Thrust</div><div class="ex-sub">Glute</div></div><div class="ex-sets">3 × 10–12</div></div>
+          <div class="ex"><div class="ex-i">3</div><div class="ex-main"><div class="ex-name">Walking Lunge / Bulgarian Split Squat</div><div class="ex-sub">Per kaki, keseimbangan</div></div><div class="ex-sets">3 × 10/kaki</div></div>
+          <div class="ex"><div class="ex-i">4</div><div class="ex-main"><div class="ex-name">Leg Curl</div><div class="ex-sub">Hamstring</div></div><div class="ex-sets">3 × 12–15</div></div>
+          <div class="ex"><div class="ex-i">5</div><div class="ex-main"><div class="ex-name">Seated Calf Raise</div><div class="ex-sub">Betis</div></div><div class="ex-sets">3 × 15–20</div></div>
+          <div class="ex"><div class="ex-i">6</div><div class="ex-main"><div class="ex-name">Cable Crunch / Hanging Leg Raise</div><div class="ex-sub">Perut</div></div><div class="ex-sets">3 × 12–15</div></div>
+        </div></div></div>
+      </div>
+
+      <!-- SABTU -->
+      <div class="day c">
+        <div class="day-head">
+          <div class="day-num">06</div>
+          <div class="day-meta">
+            <div class="day-name">Sabtu — Cardio + Core</div>
+            <div class="day-title">Variasi: interval atau steady</div>
+          </div>
+          <span class="badge c">Cardio</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="day-body"><div class="day-body-inner"><div class="day-content">
+          <div class="warmup">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 12h4l2 5 4-13 2 8h6"/></svg>
+            <div>Pilih salah satu sesuai mood. Lagi males interval? Jogging steady aja.</div>
+          </div>
+          <div class="ex"><div class="ex-i">1</div><div class="ex-main"><div class="ex-name">Interval (treadmill/sepeda)</div><div class="ex-sub">1 mnt cepat / 2 mnt santai × 6–8 putaran</div></div><div class="ex-sets">~25–30 mnt</div></div>
+          <div class="ex"><div class="ex-i">2</div><div class="ex-main"><div class="ex-name">Plank Variations</div><div class="ex-sub">Depan + samping kiri-kanan</div></div><div class="ex-sets">3 set</div></div>
+          <div class="ex"><div class="ex-i">3</div><div class="ex-main"><div class="ex-name">Bicycle Crunch</div></div><div class="ex-sets">3 × 20</div></div>
+        </div></div></div>
+      </div>
+
+      <!-- MINGGU -->
+      <div class="day r">
+        <div class="day-head">
+          <div class="day-num">07</div>
+          <div class="day-meta">
+            <div class="day-name">Minggu — Active Recovery</div>
+            <div class="day-title">Pulihin badan, jangan dipaksa</div>
+          </div>
+          <span class="badge r">Recovery</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="day-body"><div class="day-body-inner"><div class="day-content">
+          <p class="rec-note">
+            Hari ini santai. Pilihannya: <b>jalan santai 20–30 menit</b> (di luar/treadmill) <b>atau</b> rebahan total — dua-duanya sah. Tutup dengan <b>full body stretching / mobility 10–15 menit</b> dan foam rolling kalau ada.
+            <br><br>
+            Catatan penting: kalau badan lo udah remuk dari latihan seminggu, ambil <b>full rest</b>. Istirahat itu bagian dari progress, bukan tanda malas. Otot tumbuhnya pas recovery, bukan pas digenjot terus.
+          </p>
+        </div></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PROGRESSIVE OVERLOAD -->
+  <div class="sec">
+    <div class="sec-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>
+      <h2>Progressive Overload</h2>
+    </div>
+    <p class="sec-note">Ini kunci utamanya. Tanpa naik beban bertahap, badan ga ada alasan buat berubah.</p>
+    <div class="cards">
+      <div class="card">
+        <h3><span class="n">01</span> Minggu 1–2: Belajar form</h3>
+        <p>Beban ringan–sedang dulu. Fokus gerakan bener &amp; rasain otot yang kerja. <b>Jangan ego.</b></p>
+      </div>
+      <div class="card">
+        <h3><span class="n">02</span> Naik bertahap</h3>
+        <p>Tiap minggu coba tambah <b>1–2 reps</b> atau naikin beban <b>2.5–5 kg</b>. Sedikit demi sedikit konsisten.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">03</span> Patokan beban pas</h3>
+        <p>1–2 rep terakhir harus <b>berasa berat tapi form tetep rapi.</b> Kalau jauh dari rep target, turunin beban.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">04</span> Rest antar set</h3>
+        <p><b>60–90 detik</b> buat gerakan isolasi. <b>2–3 menit</b> buat compound berat (squat, RDL, press).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="sec">
+    <div class="sec-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z"/></svg>
+      <h2>Tips Pemula</h2>
+    </div>
+    <ul class="clean">
+      <li><b>Form &gt; beban. Selalu.</b> Ego lifting itu jalan tol ke cedera.</li>
+      <li><b>Warm-up wajib</b> 5–10 menit. Jangan langsung gas dari dingin.</li>
+      <li><b>Track progress lo</b> — catet beban &amp; reps tiap sesi di notes HP. Biar tau lagi naik apa stuck.</li>
+      <li><b>Konsisten &gt; sempurna.</b> Rutin 3 bulan ngalahin beast mode seminggu terus ilang.</li>
+      <li><b>Tidur 7–8 jam.</b> Ini bener-bener bagian dari programnya, bukan opsional.</li>
+    </ul>
+  </div>
+
+  <!-- NUTRITION -->
+  <div class="sec">
+    <div class="sec-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2v20M5 6c0 3 2 5 7 5M19 6c0 3-2 5-7 5"/></svg>
+      <h2>Nutrisi Singkat</h2>
+    </div>
+    <p class="sec-note">Biar "proper &amp; lean"-nya kebentuk, latihan doang ga cukup — makannya juga ngaruh.</p>
+    <div class="cards">
+      <div class="card cy">
+        <h3><span class="n">P</span> Protein cukup</h3>
+        <p>Target <b>~1.6–2 gr per kg berat badan</b> per hari. Sumber: ayam, telur, ikan, tempe/tahu, whey kalau perlu.</p>
+      </div>
+      <div class="card cy">
+        <h3><span class="n">K</span> Makan secukupnya</h3>
+        <p>Ga perlu bulking gila. Sebagai pemula, makan di sekitar <b>kebutuhan harian</b> udah cukup buat bangun otot sambil tetep kering.</p>
+      </div>
+      <div class="card cy">
+        <h3><span class="n">H</span> Hidrasi &amp; konsisten</h3>
+        <p>Minum air yang cukup tiap hari, dan jaga pola makan stabil. Konsistensi makan = konsistensi hasil.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Ini panduan umum buat pemula, bukan saran medis. Kalau lo punya kondisi kesehatan atau riwayat cedera, mending konsul dulu sama dokter / personal trainer bersertifikat sebelum mulai. Dengerin badan lo — sakit "tajam" itu sinyal stop, bukan sinyal lanjut.
+  </div>
+
+</div>
+
+<script>
+  // Toggle individual day
+  document.querySelectorAll('.day-head').forEach(function(head){
+    head.addEventListener('click', function(){
+      head.parentElement.classList.toggle('open');
+      syncToggleAllLabel();
+    });
+  });
+
+  // Toggle all
+  var btn = document.getElementById('toggleAll');
+  var days = document.querySelectorAll('.day');
+  btn.addEventListener('click', function(){
+    var anyClosed = Array.from(days).some(function(d){ return !d.classList.contains('open'); });
+    days.forEach(function(d){ d.classList.toggle('open', anyClosed); });
+    syncToggleAllLabel();
+  });
+
+  function syncToggleAllLabel(){
+    var anyClosed = Array.from(days).some(function(d){ return !d.classList.contains('open'); });
+    btn.textContent = anyClosed ? 'Buka semua' : 'Tutup semua';
+  }
+  syncToggleAllLabel();
+</script>
+
+</body>
+</html>
